@@ -41,7 +41,9 @@ public class GameControl {
                 try {
                     int houseNumber = Integer.parseInt(input);
                     if (houseNumber >= 1 && houseNumber <= 6) {
-                        return new MoveOperation(game, houseNumber);
+                        HouseChoice houseChoice = new HouseChoice(houseNumber,
+                                game.getCurrentPlayer());
+                        return new MoveOperation(game, houseChoice, io);
                     }
                     io.println("House number must be 1 to 6");
                     return new InvalidOperation();

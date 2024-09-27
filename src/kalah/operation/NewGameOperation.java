@@ -2,6 +2,7 @@ package kalah.operation;
 
 import kalah.Game;
 import kalah.GameControl;
+import kalah.KalahBoard;
 
 public class NewGameOperation implements Operation {
     private final Game game;
@@ -15,8 +16,7 @@ public class NewGameOperation implements Operation {
     @Override
     public void execute() {
         gameControl.resetSave();
-        // TODO: Implement this method
-        System.out.println("new game!");
-        game.newGame();
+        game.setBoard(new KalahBoard(game.getNumberOfHouses(), game.getSeedsPerHouse()));
+        game.setCurrentPlayer(game.getPlayer1());
     }
 }

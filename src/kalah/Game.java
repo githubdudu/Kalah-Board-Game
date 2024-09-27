@@ -47,9 +47,36 @@ public class Game {
         }
     }
 
-    public void newGame() {
-        this.board = new KalahBoard(numberOfHouses, seedsPerHouse);
-        this.currentPlayer = player1;
+    public KalahBoard getBoard() {
+        return board;
+    }
+
+    public void setBoard(KalahBoard board) {
+        this.board = board;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public void setCurrentPlayer(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
+    }
+
+    public Player getPlayer1() {
+        return player1;
+    }
+
+    public int getNumberOfHouses() {
+        return numberOfHouses;
+    }
+
+    public int getSeedsPerHouse() {
+        return seedsPerHouse;
+    }
+
+    public Player getPlayer2() {
+        return player2;
     }
 
     /**
