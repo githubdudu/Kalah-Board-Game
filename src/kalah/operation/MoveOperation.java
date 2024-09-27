@@ -13,6 +13,7 @@ public class MoveOperation implements Operation {
 
     @Override
     public void execute() {
-        System.out.println("Goodbye!");
+        // TODO: Implement this method
+        System.out.println("Make a move!");
     }
 }

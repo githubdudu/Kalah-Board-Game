@@ -5,27 +5,38 @@ import kalah.operation.*;
 
 public class GameControl {
     private final IO io;
+    private final Game game;
+    private Game.GameSave gameSave;
 
     public GameControl(IO io) {
         this.io = io;
+        this.game = new Game();
     }
 
-    public void initGame(Game game) {
-        Operation operation = new NewGameOperation(game);
-        operation.execute();
+    private Game.GameSave getGameSave() {
+        return this.gameSave;
     }
 
-    public Operation getOperation(Game game) {
+
+    public void setGameSave(Game.GameSave save) {
+        this.gameSave = save;
+    }
+
+    public void resetSave() {
+        setGameSave(null);
+    }
+
+    public Operation getOperation() {
         String input = io.readFromKeyboard("Choice:");
         switch (input) {
             case "n":
-                return new NewGameOperation(game);
+                return new NewGameOperation(game, this);
             case "s":
-                return new SaveGameOperation(game);
+                return new SaveGameOperation(game, this);
             case "l":
-                return new LoadGameOperation(game);
+                return new LoadGameOperation(game, this.getGameSave());
             case "q":
-                return null;
+                return new QuitGameOperation(game);
             default:
                 try {
                     int houseNumber = Integer.parseInt(input);
@@ -33,24 +44,30 @@ public class GameControl {
                         return new MoveOperation(game, houseNumber);
                     }
                     io.println("House number must be 1 to 6");
-                    return null;
+                    return new InvalidOperation();
                 } catch (NumberFormatException e) {
                     io.println("Invalid input");
                 }
-                return null;
+
+                return new InvalidOperation();
         }
     }
 
-    public void printBoard(Game game) {
+    public boolean isOperationInvalid(Operation operation) {
+        return operation == null || operation instanceof InvalidOperation;
+    }
+
+    public void printBoard() {
     }
 
     public void printMenu() {
     }
 
-    public boolean isGameOver(Game game) {
+    public boolean isGameOver() {
         return false;
     }
 
-    public void printResult(Game game) {
+    public void printResult() {
     }
+
 }
