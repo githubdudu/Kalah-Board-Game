@@ -22,7 +22,10 @@ public class Kalah {
             gameControl.printBoard();
             gameControl.printMenu();
             Operation operation = gameControl.getOperation();
-            if (gameControl.isOperationInvalid(operation)) {
+            if (gameControl.isQuitOperation(operation)) {
+                operation.execute();
+                break;
+            } else if (gameControl.isOperationInvalid(operation)) {
                 break;
             }
             operation.execute();

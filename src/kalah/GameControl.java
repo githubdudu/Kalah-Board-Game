@@ -6,8 +6,8 @@ import kalah.operation.*;
 public class GameControl {
     private final IO io;
     private final Game game;
-    private Game.GameSave gameSave;
     private final BoardPrinter printer;
+    private Game.GameSave gameSave;
 
     public GameControl(IO io) {
         this.io = io;
@@ -41,7 +41,7 @@ public class GameControl {
                 return new LoadGameOperation(game, this.getGameSave());
             case "q":
             case "Q":
-                return new QuitGameOperation(game);
+                return new QuitGameOperation(this, io);
             default:
                 try {
                     int houseNumber = Integer.parseInt(input);
@@ -60,6 +60,10 @@ public class GameControl {
         }
     }
 
+    public boolean isQuitOperation(Operation operation) {
+        return operation instanceof QuitGameOperation;
+    }
+
     public boolean isOperationInvalid(Operation operation) {
         return operation == null || operation instanceof InvalidOperation;
     }
@@ -69,7 +73,7 @@ public class GameControl {
     }
 
     /**
-     * Print the menu for the current player. TODO: case insensitive??
+     * Print the menu for the current player.
      */
     public void printMenu() {
         io.println("Player " + game.getCurrentPlayer().getPlayerTag());

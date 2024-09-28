@@ -1,14 +1,20 @@
 package kalah.operation;
 
-import kalah.Game;
+import com.qualitascorpus.testsupport.IO;
+import kalah.GameControl;
 
 public class QuitGameOperation implements Operation {
-    public QuitGameOperation(Game game) {
+    private final GameControl gameControl;
+    private final IO io;
+
+    public QuitGameOperation(GameControl gameControl, IO io) {
+        this.gameControl = gameControl;
+        this.io = io;
     }
 
     @Override
     public void execute() {
-        // TODO: Implement this method
-        System.out.println("Quit the game!");
+        io.println("Game over");
+        gameControl.printBoard();
     }
 }
