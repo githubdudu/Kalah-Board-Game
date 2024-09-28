@@ -20,6 +20,16 @@ public class Kalah {
         while (true) {
             // Print the board and menu even before the game starts
             gameControl.printBoard();
+
+            // Terminate the game when it is over
+            if (gameControl.isGameOver()) {
+                gameControl.printGameOver();
+                // We print the board and result again after the game is over
+                gameControl.printBoard();
+                gameControl.printResult();
+                break;
+            }
+
             gameControl.printMenu();
             Operation operation = gameControl.getOperation();
             if (gameControl.isQuitOperation(operation)) {
@@ -30,12 +40,6 @@ public class Kalah {
             }
             operation.execute();
 
-            // Terminate the game when it is over
-            if (gameControl.isGameOver()) {
-                gameControl.printBoard();
-                gameControl.printResult();
-                break;
-            }
         }
     }
 

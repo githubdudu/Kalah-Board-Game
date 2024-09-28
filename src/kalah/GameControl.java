@@ -41,7 +41,7 @@ public class GameControl {
                 return new LoadGameOperation(game, this.getGameSave());
             case "q":
             case "Q":
-                return new QuitGameOperation(this, io);
+                return new QuitGameOperation(this);
             default:
                 try {
                     int houseNumber = Integer.parseInt(input);
@@ -97,14 +97,22 @@ public class GameControl {
         }
     }
 
+    public void printGameOver() {
+        io.println("Game over");
+    }
+
     public void printResult() {
-        int player1Seeds = game.getPlayer1().getHousesSeeds();
-        int player2Seeds = game.getPlayer2().getHousesSeeds();
-        if (player1Seeds == player2Seeds) {
+        int player1Score = game.getPlayer1().getPlayerScore();
+        int player2Score = game.getPlayer2().getPlayerScore();
+        io.println(String.format("\tplayer 1:%d", player1Score));
+        io.println(String.format("\tplayer 2:%d", player2Score));
+
+        if (player1Score == player2Score) {
             io.println("A tie!");
         } else {
-            String winner = player1Seeds > player2Seeds ? "Player 1" : "Player 2";
-            io.println(winner + " wins!");
+            String winner = player1Score > player2Score ? "Player 1" : "Player 2";
+            String result = String.format("%s wins!", winner);
+            io.println(result);
         }
     }
 }
