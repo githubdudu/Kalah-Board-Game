@@ -164,7 +164,7 @@ public class KalahBoard implements Serializable {
     }
 
     public class Pit {
-        private final int index;
+        private int index;
         private int seeds;
 
         Pit(int index, int seeds) {
@@ -172,7 +172,7 @@ public class KalahBoard implements Serializable {
                 throw new IllegalArgumentException(
                         "Invalid pit index, it should be between 0 and " + (numberOfHouses * 2 + 1));
             }
-            this.index = 0;
+            this.index = index;
             this.seeds = seeds;
         }
 
