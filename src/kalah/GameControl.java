@@ -7,16 +7,17 @@ public class GameControl {
     private final IO io;
     private final Game game;
     private Game.GameSave gameSave;
+    private final BoardPrinter printer;
 
     public GameControl(IO io) {
         this.io = io;
         this.game = new Game();
+        printer = new BoardPrinter(io, game.getPlayer1(), game.getPlayer2());
     }
 
     private Game.GameSave getGameSave() {
         return this.gameSave;
     }
-
 
     public void setGameSave(Game.GameSave save) {
         this.gameSave = save;
@@ -30,12 +31,16 @@ public class GameControl {
         String input = io.readFromKeyboard("Choice:");
         switch (input) {
             case "n":
+            case "N":
                 return new NewGameOperation(game, this);
             case "s":
+            case "S":
                 return new SaveGameOperation(game, this);
             case "l":
+            case "L":
                 return new LoadGameOperation(game, this.getGameSave());
             case "q":
+            case "Q":
                 return new QuitGameOperation(game);
             default:
                 try {
@@ -60,16 +65,42 @@ public class GameControl {
     }
 
     public void printBoard() {
+        printer.displayBoard();
     }
 
+    /**
+     * Print the menu for the current player. TODO: case insensitive??
+     */
     public void printMenu() {
+        io.println("Player " + game.getCurrentPlayer().getPlayerTag());
+        io.println("    (1-6) - house number for move");
+        io.println("    N - New game");
+        io.println("    S - Save game");
+        io.println("    L - Load game");
+        io.println("    q - Quit");
     }
 
+    /**
+     * Returns whether the game is over.
+     *
+     * @return true if the game is over, false otherwise
+     */
     public boolean isGameOver() {
-        return false;
+        if (game.getPlayer1().equals(game.getCurrentPlayer())) {
+            return game.getPlayer1().getHousesSeeds() == 0;
+        } else {
+            return game.getPlayer2().getHousesSeeds() == 0;
+        }
     }
 
     public void printResult() {
+        int player1Seeds = game.getPlayer1().getHousesSeeds();
+        int player2Seeds = game.getPlayer2().getHousesSeeds();
+        if (player1Seeds == player2Seeds) {
+            io.println("A tie!");
+        } else {
+            String winner = player1Seeds > player2Seeds ? "Player 1" : "Player 2";
+            io.println(winner + " wins!");
+        }
     }
-
 }

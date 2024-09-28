@@ -36,8 +36,11 @@ public class KalahBoard implements Serializable {
 
         this.pits = new Pit[numberOfHouses * 2 + 2];
         for (int i = 0; i < numberOfHouses; i++) {
-            pits[i] = new Pit(i, seedsPerHouse);
+            pits[i + player1HouseStartIndex] = new Pit(i + player1HouseStartIndex, seedsPerHouse);
+            pits[i + player2HouseStartIndex] = new Pit(i + player2HouseStartIndex, seedsPerHouse);
         }
+        pits[player1StoreIndex] = new Pit(player1StoreIndex, 0);
+        pits[player2StoreIndex] = new Pit(player2StoreIndex, 0);
     }
 
     /**

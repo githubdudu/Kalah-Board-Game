@@ -14,3 +14,5 @@ play: compile
 compile:
 	mkdir -p bin
 	javac -d bin -cp resources/junit-3.8.2.jar:resources/kalah-compsci701-a3-20210910.jar:bin:src src/kalah/Kalah.java
+clean:
+	rm -rf bin
