@@ -1,9 +1,8 @@
 package kalah;
 
-import java.io.Serializable;
 import java.util.Iterator;
 
-public class Player implements Serializable {
+public class Player {
     private final String playerName;
     private final PlayerTag playerTag;
     private final int numberOfHouses;

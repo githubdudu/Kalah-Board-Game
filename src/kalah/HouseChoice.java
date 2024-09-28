@@ -1,13 +1,12 @@
 package kalah;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Represents a house choice in the Kalah game.
  * Specified by the house number and the player tag.
  */
-public class HouseChoice implements Serializable {
+public class HouseChoice {
     /**
      * The player tag. Either P1 or P2.
      */
