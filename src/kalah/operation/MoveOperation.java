@@ -36,7 +36,7 @@ public class MoveOperation implements Operation {
     }
 
     private void displayMoveAgain() {
-        io.println("House is empty. Move again.");
+        io.println(GameSetting.MOVE_AGAIN_MESSAGE);
     }
 
 

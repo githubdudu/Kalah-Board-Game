@@ -6,12 +6,12 @@ import java.util.Iterator;
 public class Player implements Serializable {
     private final String playerName;
     private final PlayerTag playerTag;
-    private KalahBoard board;
     private final int numberOfHouses;
     /**
      * The list of house choices for the player.
      */
     protected HouseChoice[] housesChoicesList;
+    private KalahBoard board;
 
     /**
      * Create a player with a name, a tag and a board.
@@ -36,6 +36,10 @@ public class Player implements Serializable {
         for (int i = 0; i < numberOfHouses; i++) {
             this.housesChoicesList[i] = new HouseChoice(i + 1, this);
         }
+    }
+
+    public String getPlayerName() {
+        return this.playerName;
     }
 
     public PlayerTag getPlayerTag() {

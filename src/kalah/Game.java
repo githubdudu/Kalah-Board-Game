@@ -31,7 +31,7 @@ public class Game {
         try {
             return new GameSave(board, currentPlayer);
         } catch (IOException e) {
-            System.out.println("Error saving the game.");
+            System.out.println(ERROR_MESSAGE_GAME_SAVING);
             e.printStackTrace();
             return null;
         }
@@ -42,7 +42,7 @@ public class Game {
             setBoard(save.getBoardState());
             setCurrentPlayer(save.getCurrentPlayerState());
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Error restoring the game.");
+            System.out.println(ERROR_MESSAGE_GAME_LOADING);
             e.printStackTrace();
         }
     }

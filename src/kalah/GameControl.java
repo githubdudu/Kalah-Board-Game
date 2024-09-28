@@ -24,7 +24,7 @@ public class GameControl {
     }
 
     public Operation getOperation() {
-        String input = io.readFromKeyboard("Choice:");
+        String input = io.readFromKeyboard(GameSetting.MENU_MESSAGE.CHOICE_PROMPT);
         switch (input) {
             case "n":
             case "N":
@@ -46,10 +46,11 @@ public class GameControl {
                                 game.getCurrentPlayer());
                         return new MoveOperation(game, houseChoice, io);
                     }
-                    io.println("House number must be 1 to 6");
+                    io.println(String.format(GameSetting.INVALID_HOUSE_MESSAGE,
+                            game.getNumberOfHouses()));
                     return new InvalidOperation();
                 } catch (NumberFormatException e) {
-                    io.println("Invalid input");
+                    io.println(GameSetting.INVALID_INPUT_MESSAGE);
                 }
 
                 return new InvalidOperation();
@@ -72,12 +73,13 @@ public class GameControl {
      * Print the menu for the current player.
      */
     public void printMenu() {
-        io.println("Player " + game.getCurrentPlayer().getPlayerTag());
-        io.println("    (1-6) - house number for move");
-        io.println("    N - New game");
-        io.println("    S - Save game");
-        io.println("    L - Load game");
-        io.println("    q - Quit");
+        io.println(
+                GameSetting.MENU_MESSAGE.PLAYER_TAG + " " + game.getCurrentPlayer().getPlayerTag());
+        io.println("    (1-6) - " + GameSetting.MENU_MESSAGE.HOUSE_CHOICE);
+        io.println("    N - " + GameSetting.MENU_MESSAGE.NEW_GAME);
+        io.println("    S - " + GameSetting.MENU_MESSAGE.SAVE_GAME);
+        io.println("    L - " + GameSetting.MENU_MESSAGE.LOAD_GAME);
+        io.println("    q - " + GameSetting.MENU_MESSAGE.QUIT);
     }
 
     /**
@@ -94,20 +96,20 @@ public class GameControl {
     }
 
     public void printGameOver() {
-        io.println("Game over");
+        io.println(GameSetting.GAME_OVER_MESSAGE);
     }
 
     public void printResult() {
         int player1Score = game.getPlayer1().getPlayerScore();
         int player2Score = game.getPlayer2().getPlayerScore();
-        io.println(String.format("\tplayer 1:%d", player1Score));
-        io.println(String.format("\tplayer 2:%d", player2Score));
+        io.println("\t" + game.getPlayer1().getPlayerName() + ":" + player1Score);
+        io.println("\t" + game.getPlayer2().getPlayerName() + ":" + player2Score);
 
         if (player1Score == player2Score) {
-            io.println("A tie!");
+            io.println(GameSetting.GAME_OVER_DRAW_MESSAGE);
         } else {
-            String winner = player1Score > player2Score ? "Player 1" : "Player 2";
-            String result = String.format("%s wins!", winner);
+            String winner = player1Score > player2Score ? "1" : "2";
+            String result = String.format(GameSetting.GAME_OVER_WINNER_MESSAGE, winner);
             io.println(result);
         }
     }

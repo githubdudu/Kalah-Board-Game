@@ -2,6 +2,7 @@ package kalah.operation;
 
 import com.qualitascorpus.testsupport.IO;
 import kalah.Game;
+import kalah.GameSetting;
 
 public class LoadGameOperation implements Operation {
     private final Game game;
@@ -17,7 +18,7 @@ public class LoadGameOperation implements Operation {
     @Override
     public void execute() {
         if (this.gameSave == null) {
-            io.println("No saved game");
+            io.println(GameSetting.NO_SAVED_GAME_MESSAGE);
             return;
         }
         this.game.restoreSave(this.gameSave);
