@@ -32,10 +32,9 @@ public class Kalah {
 
             gameControl.printMenu();
             Operation operation = gameControl.getOperation();
-            if (gameControl.isQuitOperation(operation)) {
+            if (gameControl.isQuitOperation(operation) || gameControl.isOperationInvalid(
+                    operation)) {
                 operation.execute();
-                break;
-            } else if (gameControl.isOperationInvalid(operation)) {
                 break;
             }
             operation.execute();

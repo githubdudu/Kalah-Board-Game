@@ -6,7 +6,7 @@ import java.util.Iterator;
 public class Player implements Serializable {
     private final String playerName;
     private final PlayerTag playerTag;
-    private final KalahBoard board;
+    private KalahBoard board;
     private final int numberOfHouses;
     /**
      * The list of house choices for the player.
@@ -38,11 +38,12 @@ public class Player implements Serializable {
         }
     }
 
-    public String getPlayerName() {
-        return this.playerName;
-    }
     public PlayerTag getPlayerTag() {
         return this.playerTag;
+    }
+
+    public void setBoard(KalahBoard board) {
+        this.board = board;
     }
 
     /**

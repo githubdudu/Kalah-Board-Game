@@ -1,25 +1,25 @@
 package kalah.operation;
 
+import com.qualitascorpus.testsupport.IO;
 import kalah.Game;
 
 public class LoadGameOperation implements Operation {
     private final Game game;
     private final Game.GameSave gameSave;
+    private final IO io;
 
-    public LoadGameOperation(Game game, Game.GameSave gameSave) {
+    public LoadGameOperation(Game game, Game.GameSave gameSave, IO io) {
         this.game = game;
         this.gameSave = gameSave;
+        this.io = io;
     }
 
     @Override
     public void execute() {
-        // TODO: Implement this method
         if (this.gameSave == null) {
-            System.out.println("No game saved.");
+            io.println("No saved game");
             return;
         }
-        System.out.println("Loading game...");
         this.game.restoreSave(this.gameSave);
-        System.out.println("Game loaded.");
     }
 }

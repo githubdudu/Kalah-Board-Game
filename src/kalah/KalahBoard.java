@@ -54,26 +54,6 @@ public class KalahBoard implements Serializable {
     }
 
     /**
-     * Set the seed count in the specified house of the specified player.
-     *
-     * @param houseChoice the choice of house of one specific player
-     * @param seedCount   the seed count to set
-     */
-    public void setSeedCount(HouseChoice houseChoice, int seedCount) {
-        pits[getPitIndex(houseChoice)].seeds = seedCount;
-    }
-
-    /**
-     * Get the house of the specified player with the specified house number.
-     *
-     * @param houseChoice the choice of house of one specific player
-     * @return the house of the specified player with the specified house number
-     */
-    public Pit getHouse(HouseChoice houseChoice) {
-        return pits[getPitIndex(houseChoice)];
-    }
-
-    /**
      * Get the store of the specified player.
      *
      * @param player the player
@@ -84,20 +64,6 @@ public class KalahBoard implements Serializable {
             return pits[player1StoreIndex];
         } else {
             return pits[player2StoreIndex];
-        }
-    }
-
-    /**
-     * Get the store of the specified player.
-     *
-     * @param player the player
-     * @return the store of the specified player
-     */
-    public int getStoreCount(Player player) {
-        if (player.getPlayerTag() == PlayerTag.P1) {
-            return pits[player1StoreIndex].seeds;
-        } else {
-            return pits[player2StoreIndex].seeds;
         }
     }
 
@@ -163,8 +129,8 @@ public class KalahBoard implements Serializable {
         return this.numberOfHouses;
     }
 
-    public class Pit {
-        private int index;
+    public class Pit implements Serializable {
+        private final int index;
         private int seeds;
 
         Pit(int index, int seeds) {

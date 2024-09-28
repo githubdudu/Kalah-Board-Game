@@ -15,15 +15,11 @@ public class GameControl {
         printer = new BoardPrinter(io, game.getPlayer1(), game.getPlayer2());
     }
 
-    private Game.GameSave getGameSave() {
-        return this.gameSave;
-    }
-
     public void setGameSave(Game.GameSave save) {
         this.gameSave = save;
     }
 
-    public void resetSave() {
+    public void clearSave() {
         setGameSave(null);
     }
 
@@ -38,7 +34,7 @@ public class GameControl {
                 return new SaveGameOperation(game, this);
             case "l":
             case "L":
-                return new LoadGameOperation(game, this.getGameSave());
+                return new LoadGameOperation(game, this.gameSave, io);
             case "q":
             case "Q":
                 return new QuitGameOperation(this);

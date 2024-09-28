@@ -14,9 +14,6 @@ public class SaveGameOperation implements Operation {
 
     @Override
     public void execute() {
-        // TODO: Implement this method
-        System.out.println("Saving game...");
         gameControl.setGameSave(game.createSave());
-        System.out.println("Game saved.");
     }
 }

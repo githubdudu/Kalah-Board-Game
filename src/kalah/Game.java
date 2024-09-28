@@ -7,10 +7,10 @@ import static kalah.GameSetting.*;
 public class Game {
     private final int numberOfHouses;
     private final int seedsPerHouse;
+    private final Player player1;
+    private final Player player2;
     private KalahBoard board;
     private Player currentPlayer;
-    private Player player1;
-    private Player player2;
 
     public Game() {
         this(DEFAULT_NUMBER_OF_HOUSES, DEFAULT_SEEDS_PER_HOUSE, DEFAULT_PLAYER1_NAME,
@@ -39,8 +39,8 @@ public class Game {
 
     public void restoreSave(GameSave save) {
         try {
-            this.board = save.getBoardState();
-            this.currentPlayer = save.getCurrentPlayerState();
+            setBoard(save.getBoardState());
+            setCurrentPlayer(save.getCurrentPlayerState());
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Error restoring the game.");
             e.printStackTrace();
@@ -53,6 +53,8 @@ public class Game {
 
     public void setBoard(KalahBoard board) {
         this.board = board;
+        this.player1.setBoard(board);
+        this.player2.setBoard(board);
     }
 
     public Player getCurrentPlayer() {
@@ -88,7 +90,7 @@ public class Game {
 
         public GameSave(KalahBoard board, Player currentPlayer) throws IOException {
             this.boardMomento = objectToBytes(board);
-            this.currentPlayerMomento = objectToBytes(currentPlayer);
+            this.currentPlayerMomento = objectToBytes(currentPlayer.getPlayerTag());
         }
 
         private byte[] objectToBytes(Object obj) throws IOException {
@@ -108,7 +110,11 @@ public class Game {
         }
 
         private Player getCurrentPlayerState() throws IOException, ClassNotFoundException {
-            return (Player) bytesToObject(currentPlayerMomento);
+            if (bytesToObject(currentPlayerMomento) == PlayerTag.P1) {
+                return player1;
+            } else {
+                return player2;
+            }
         }
     }
 }

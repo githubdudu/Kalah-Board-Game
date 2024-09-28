@@ -5,9 +5,9 @@ import com.qualitascorpus.testsupport.IO;
 import kalah.*;
 
 public class MoveOperation implements Operation {
-    private Game game;
-    private HouseChoice houseChoice;
-    private IO io;
+    private final Game game;
+    private final HouseChoice houseChoice;
+    private final IO io;
 
     public MoveOperation(Game game, HouseChoice houseChoice, IO io) {
         this.game = game;
