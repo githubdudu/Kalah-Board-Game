@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kalah</title>
+<!--
+  The CheerpJ runtime must be loaded from Leaning Technologies' CDN: self-hosting the
+  runtime files requires a commercial licence, loading them from here does not. Everything
+  else on this page (including kalah-web.jar) is served from wherever you deploy it.
+-->
+<script src="https://cjrtnc.leaningtech.com/4.3/loader.js"></script>
+<style>
+	:root {
+		--bg: #14161a;
+		--fg: #d7dae0;
+		--dim: #7c828d;
+		--accent: #7cc4a4;
+		--error: #e08c7a;
+	}
+
+	* { box-sizing: border-box; }
+
+	body {
+		margin: 0;
+		min-height: 100vh;
+		background: var(--bg);
+		color: var(--fg);
+		font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+		font-size: 14px;
+		line-height: 1.45;
+		display: flex;
+		justify-content: center;
+	}
+
+	main {
+		width: 100%;
+		max-width: 68ch;
+		padding: 1.25rem 1rem 2rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	h1 {
+		margin: 0;
+		font-size: 1rem;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		color: var(--accent);
+	}
+
+	h1 small {
+		display: block;
+		font-weight: 400;
+		color: var(--dim);
+		letter-spacing: 0;
+	}
+
+	/* The board is 64 characters wide, so let it scroll rather than wrap on narrow screens. */
+	#screen {
+		margin: 0;
+		overflow-x: auto;
+		white-space: pre;
+		min-height: 55vh;
+	}
+
+	#screen .echo { color: var(--accent); }
+	#screen .error { color: var(--error); }
+
+	form {
+		display: flex;
+		align-items: baseline;
+		gap: 0.5ch;
+		border-top: 1px solid #2a2e35;
+		padding-top: 0.75rem;
+	}
+
+	form[hidden] { display: none; }
+
+	label { color: var(--dim); }
+
+	input {
+		flex: 1;
+		min-width: 0;
+		background: none;
+		border: none;
+		color: var(--fg);
+		font: inherit;
+		padding: 0;
+	}
+
+	input:focus { outline: none; }
+
+	#keys {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+	}
+
+	#keys button {
+		background: #1d2026;
+		color: var(--fg);
+		border: 1px solid #2a2e35;
+		border-radius: 4px;
+		font: inherit;
+		padding: 0.3rem 0.7rem;
+		cursor: pointer;
+	}
+
+	#keys button:hover { border-color: var(--accent); color: var(--accent); }
+
+	#status { color: var(--dim); }
+</style>
+</head>
+<body>
+<main>
+	<h1>Kalah Game<small>running in the browser via CheerpJ</small></h1>
+
+	<pre id="screen"></pre>
+
+	<p id="status">Loading the Java runtime (a few MB, first load only)&hellip;</p>
+
+	<form id="line" hidden>
+		<label for="entry" id="prompt">Choice:</label>
+		<input id="entry" autocomplete="off" autocapitalize="off" autocorrect="off"
+			spellcheck="false" aria-label="Game input">
+	</form>
+
+	<div id="keys" hidden></div>
+</main>
+
+<script>
+	const screenEl = document.getElementById("screen");
+	const statusEl = document.getElementById("status");
+	const formEl = document.getElementById("line");
+	const entryEl = document.getElementById("entry");
+	const promptEl = document.getElementById("prompt");
+	const keysEl = document.getElementById("keys");
+
+	// Set while the Java side is blocked inside jsReadLine, waiting for a line.
+	let resolveLine = null;
+
+	function write(text, className) {
+		const node = document.createTextNode(text);
+		if (className) {
+			const span = document.createElement("span");
+			span.className = className;
+			span.appendChild(node);
+			screenEl.appendChild(span);
+		} else {
+			screenEl.appendChild(node);
+		}
+		window.scrollTo(0, document.body.scrollHeight);
+	}
+
+	function submitLine(value) {
+		if (!resolveLine) {
+			return;
+		}
+		const resolve = resolveLine;
+		resolveLine = null;
+		// Echo what was typed, the way a terminal would.
+		write(" " + value + "\n", "echo");
+		formEl.hidden = true;
+		keysEl.hidden = true;
+		entryEl.value = "";
+		resolve(value);
+	}
+
+	formEl.addEventListener("submit", (event) => {
+		event.preventDefault();
+		submitLine(entryEl.value.trim());
+	});
+
+	for (const key of ["1", "2", "3", "4", "5", "6", "N", "S", "L", "q"]) {
+		const button = document.createElement("button");
+		button.type = "button";
+		button.textContent = key;
+		button.addEventListener("click", () => submitLine(key));
+		keysEl.appendChild(button);
+	}
+
+	// --- Bridge for kalah.js --------------------------------------------------
+
+	window.kalahUI = {
+		write,
+		// Returning a Promise suspends the calling Java thread until it settles, which is
+		// what makes the blocking read loop in GameControl work unchanged in the browser.
+		readLine(prompt) {
+			promptEl.textContent = prompt;
+			formEl.hidden = false;
+			keysEl.hidden = false;
+			entryEl.focus();
+			return new Promise((resolve) => {
+				resolveLine = resolve;
+			});
+		}
+	};
+
+	// --- Boot ------------------------------------------------------------------------
+
+	(async () => {
+		try {
+			await cheerpjInit({
+				version: 8,
+				javaProperties: ["java.library.path=/app/"]
+			});
+			statusEl.hidden = true;
+			await cheerpjRunMain("web.Main", "/app/kalah-web.jar:/app/kalah-io.jar");
+			// play() returns once the player quits or the game ends.
+			write("\n[session ended - reload to play again]\n", "echo");
+		} catch (error) {
+			statusEl.hidden = true;
+			write("\n[failed to start: " + error + "]\n", "error");
+			throw error;
+		} finally {
+			formEl.hidden = true;
+			keysEl.hidden = true;
+		}
+	})();
+</script>
+</body>
+</html>

@@ -16,3 +16,21 @@ compile:
 	javac -d bin -cp resources/junit-3.8.2.jar:resources/kalah-compsci701-a3-20210910.jar:bin:src src/kalah/Kalah.java
 clean:
 	rm -rf bin
+
+# Command for Kalah Web/Browser
+test-web: build-web
+	node web/test/e2e.js
+
+serve-web: build-web
+	node web/serve.js
+
+build-web: compile-web
+	jar cf web/dist/kalah-web.jar -C bin .
+	cp web/index.html web/kalah.js resources/kalah-io.jar web/dist
+
+compile-web: clean-web
+	mkdir -p web/dist
+	javac --release 8 -d bin -cp resources/junit-3.8.2.jar:resources/kalah-compsci701-a3-20210910.jar:bin:src src/web/Main.java
+
+clean-web: clean
+	rm -rf web/dist

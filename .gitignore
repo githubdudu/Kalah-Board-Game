@@ -27,3 +27,8 @@ hs_err_pid*
 # Common student mistakes
 bin
 out
+
+# Web build output. 
+# web/dist/ is what gets deployed.
+web/dist/
+web/node_modules/

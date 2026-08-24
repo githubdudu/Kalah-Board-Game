@@ -1,0 +1,15 @@
+{
+	"name": "kalah-web",
+	"version": "1.0.0",
+	"private": true,
+	"description": "Browser build of the Kalah game, run via CheerpJ",
+	"scripts": {
+		"build": "./build.sh",
+		"serve": "node serve.js",
+		"test": "node test/e2e.js",
+		"postinstall": "playwright install chromium --only-shell"
+	},
+	"devDependencies": {
+		"playwright": "^1.49.0"
+	}
+}
