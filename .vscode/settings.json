@@ -1,0 +1,8 @@
+{
+  "java.project.sourcePaths": ["src", "web/java"],
+  "java.project.outputPath": "bin",
+  "java.project.referencedLibraries": [
+    "resources/kalah-compsci701-a3-20210910.jar",
+    "resources/junit-3.8.2.jar"
+  ]
+}
