@@ -3,24 +3,10 @@ package kalah;
 import com.qualitascorpus.testsupport.IO;
 
 public class BoardPrinter {
-    /**
-     * The IO object to use for input and output.
-     */
-    private final IO io;
-    private final Player player1;
-    private final Player player2;
+    private IO io;
 
-    /**
-     * Constructs a new printer.
-     *
-     * @param io      the IO object to use for input and output
-     * @param player1 the player 1
-     * @param player2 the player 2
-     */
-    public BoardPrinter(IO io, Player player1, Player player2) {
+    public BoardPrinter(IO io) {
         this.io = io;
-        this.player1 = player1;
-        this.player2 = player2;
     }
 
     /**
@@ -36,16 +22,16 @@ public class BoardPrinter {
      * +----+-------+-------+-------+-------+-------+-------+----+
      * </pre>
      */
-    public void displayBoard() {
+    public void displayBoard(int player1StoreSeeds, int player2StoreSeeds, int[] player1HouseSeeds, int[] player2HouseSeeds) {
         io.println("+----+-------+-------+-------+-------+-------+-------+----+");
 
-        String[] lineP2 = generateStringList(player1.getStoreSeeds(), player2.getHouseSeedsList(),
+        String[] lineP2 = generateStringList(player1StoreSeeds, player2HouseSeeds,
                 "P2");
         io.println(generateLineHorizontal(reverse(lineP2)));
 
         io.println("|    |-------+-------+-------+-------+-------+-------|    |");
 
-        String[] lineP1 = generateStringList(player2.getStoreSeeds(), player1.getHouseSeedsList(),
+        String[] lineP1 = generateStringList(player2StoreSeeds, player1HouseSeeds,
                 "P1");
         io.println(generateLineHorizontal(lineP1));
 
@@ -90,4 +76,13 @@ public class BoardPrinter {
         }
         return sb.toString();
     }
+
+    public String readFromKeyboard(String choicePrompt) {
+        return io.readFromKeyboard(choicePrompt);
+    }
+
+    public void println(String s) {
+        io.println(s);
+    }
+
 }

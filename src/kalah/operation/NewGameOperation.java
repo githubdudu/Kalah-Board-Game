@@ -15,7 +15,7 @@ public class NewGameOperation implements Operation {
 
     @Override
     public void execute() {
-        gameControl.clearSave();
+        gameControl.clearGameSave();
         KalahBoard newBoard = new KalahBoard(game.getNumberOfHouses(), game.getSeedsPerHouse());
         game.setBoard(newBoard);
         game.setCurrentPlayer(game.getPlayer1());

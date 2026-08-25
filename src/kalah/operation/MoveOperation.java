@@ -1,18 +1,26 @@
 package kalah.operation;
 
-
-import com.qualitascorpus.testsupport.IO;
 import kalah.*;
 
 public class MoveOperation implements Operation {
     private final Game game;
-    private final HouseChoice houseChoice;
-    private final IO io;
+    private HouseChoice houseChoice;
+    private final GameControl gc;
 
-    public MoveOperation(Game game, HouseChoice houseChoice, IO io) {
+    public MoveOperation(Game game, GameControl gameControl) {
         this.game = game;
-        this.houseChoice = houseChoice;
-        this.io = io;
+        this.gc = gameControl;
+    }
+
+    public void GetAction(String input) {
+        int houseNumber = Integer.parseInt(input);
+        if (houseNumber >= 1 && houseNumber <= 6) {
+            this.houseChoice = new HouseChoice(houseNumber,
+                    game.getCurrentPlayer());
+        } else {
+            throw new IllegalArgumentException(String.format("House number must be 1 to %d",
+                    game.getNumberOfHouses()));
+        }
     }
 
     @Override
@@ -36,7 +44,7 @@ public class MoveOperation implements Operation {
     }
 
     private void displayMoveAgain() {
-        io.println(GameSetting.MOVE_AGAIN_MESSAGE);
+        this.gc.printer.println(GameSetting.MOVE_AGAIN_MESSAGE);
     }
 
 

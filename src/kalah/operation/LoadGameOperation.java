@@ -1,26 +1,24 @@
 package kalah.operation;
 
-import com.qualitascorpus.testsupport.IO;
 import kalah.Game;
+import kalah.GameControl;
 import kalah.GameSetting;
 
 public class LoadGameOperation implements Operation {
     private final Game game;
-    private final Game.GameSave gameSave;
-    private final IO io;
+    private final GameControl gc;
 
-    public LoadGameOperation(Game game, Game.GameSave gameSave, IO io) {
+    public LoadGameOperation(Game game, GameControl gameControl) {
         this.game = game;
-        this.gameSave = gameSave;
-        this.io = io;
+        this.gc = gameControl;
     }
 
     @Override
     public void execute() {
-        if (this.gameSave == null) {
-            io.println(GameSetting.NO_SAVED_GAME_MESSAGE);
+        if (this.gc.getGameSave() == null) {
+            gc.printer.println(GameSetting.NO_SAVED_GAME_MESSAGE);
             return;
         }
-        this.game.restoreSave(this.gameSave);
+        this.game.restoreSave(this.gc.getGameSave());
     }
 }

@@ -1,30 +1,31 @@
 package kalah;
 
-import com.qualitascorpus.testsupport.IO;
 import kalah.operation.*;
 
 public class GameControl {
-    private final IO io;
     private final Game game;
-    private final BoardPrinter printer;
+    public final BoardPrinter printer;
     private Game.GameSave gameSave;
 
-    public GameControl(IO io) {
-        this.io = io;
-        this.game = new Game();
-        printer = new BoardPrinter(io, game.getPlayer1(), game.getPlayer2());
+    public GameControl(Game game, BoardPrinter printer) {
+        this.game = game;
+        this.printer = printer;
     }
 
     public void setGameSave(Game.GameSave save) {
         this.gameSave = save;
     }
 
-    public void clearSave() {
-        setGameSave(null);
+    public Game.GameSave getGameSave() {
+        return this.gameSave;
+    }
+
+    public void clearGameSave() {
+        this.gameSave = null;
     }
 
     public Operation getOperation() {
-        String input = io.readFromKeyboard(GameSetting.MENU_MESSAGE.CHOICE_PROMPT);
+        String input = printer.readFromKeyboard(GameSetting.MENU_MESSAGE.CHOICE_PROMPT);
         switch (input) {
             case "n":
             case "N":
@@ -34,26 +35,20 @@ public class GameControl {
                 return new SaveGameOperation(game, this);
             case "l":
             case "L":
-                return new LoadGameOperation(game, this.gameSave, io);
+                return new LoadGameOperation(game, this);
             case "q":
             case "Q":
-                return new QuitGameOperation(this);
+                return new QuitGameOperation();
             default:
                 try {
-                    int houseNumber = Integer.parseInt(input);
-                    if (houseNumber >= 1 && houseNumber <= 6) {
-                        HouseChoice houseChoice = new HouseChoice(houseNumber,
-                                game.getCurrentPlayer());
-                        return new MoveOperation(game, houseChoice, io);
-                    }
-                    io.println(String.format(GameSetting.INVALID_HOUSE_MESSAGE,
-                            game.getNumberOfHouses()));
+                    MoveOperation mop = new MoveOperation(game, this);
+                    mop.GetAction(input);
+                    return mop;
+                } catch (IllegalArgumentException e) {
+                    printer.println("Invalid input!");
+                    printer.println(e.getMessage());
                     return new InvalidOperation();
-                } catch (NumberFormatException e) {
-                    io.println(GameSetting.INVALID_INPUT_MESSAGE);
                 }
-
-                return new InvalidOperation();
         }
     }
 
@@ -66,20 +61,19 @@ public class GameControl {
     }
 
     public void printBoard() {
-        printer.displayBoard();
+        printer.displayBoard(game.getPlayer1().getStoreSeeds(), game.getPlayer2().getStoreSeeds(), game.getPlayer1().getHouseSeedsList(), game.getPlayer2().getHouseSeedsList());
     }
 
     /**
      * Print the menu for the current player.
      */
     public void printMenu() {
-        io.println(
-                GameSetting.MENU_MESSAGE.PLAYER_TAG + " " + game.getCurrentPlayer().getPlayerTag());
-        io.println("    (1-6) - " + GameSetting.MENU_MESSAGE.HOUSE_CHOICE);
-        io.println("    N - " + GameSetting.MENU_MESSAGE.NEW_GAME);
-        io.println("    S - " + GameSetting.MENU_MESSAGE.SAVE_GAME);
-        io.println("    L - " + GameSetting.MENU_MESSAGE.LOAD_GAME);
-        io.println("    q - " + GameSetting.MENU_MESSAGE.QUIT);
+        printer.println(GameSetting.MENU_MESSAGE.PLAYER_TAG + " " + game.getCurrentPlayer().getPlayerTag());
+        printer.println("    (1-6) - " + GameSetting.MENU_MESSAGE.HOUSE_CHOICE);
+        printer.println("    N - " + GameSetting.MENU_MESSAGE.NEW_GAME);
+        printer.println("    S - " + GameSetting.MENU_MESSAGE.SAVE_GAME);
+        printer.println("    L - " + GameSetting.MENU_MESSAGE.LOAD_GAME);
+        printer.println("    q - " + GameSetting.MENU_MESSAGE.QUIT);
     }
 
     /**
@@ -96,21 +90,37 @@ public class GameControl {
     }
 
     public void printGameOver() {
-        io.println(GameSetting.GAME_OVER_MESSAGE);
+        printer.println(GameSetting.GAME_OVER_MESSAGE);
     }
 
     public void printResult() {
         int player1Score = game.getPlayer1().getPlayerScore();
         int player2Score = game.getPlayer2().getPlayerScore();
-        io.println("\t" + game.getPlayer1().getPlayerName() + ":" + player1Score);
-        io.println("\t" + game.getPlayer2().getPlayerName() + ":" + player2Score);
+        printer.println("\t" + game.getPlayer1().getPlayerName() + ":" + player1Score);
+        printer.println("\t" + game.getPlayer2().getPlayerName() + ":" + player2Score);
 
         if (player1Score == player2Score) {
-            io.println(GameSetting.GAME_OVER_DRAW_MESSAGE);
+            printer.println(GameSetting.GAME_OVER_DRAW_MESSAGE);
         } else {
             String winner = player1Score > player2Score ? "1" : "2";
             String result = String.format(GameSetting.GAME_OVER_WINNER_MESSAGE, winner);
-            io.println(result);
+            printer.println(result);
         }
+    }
+
+    public boolean playOneRound() {
+        Operation op = getOperation();
+        if (isOperationInvalid(op)) {
+            return true;
+        }
+        if (isQuitOperation(op)) {
+            this.printGameOver();
+            this.printBoard();
+            return false;
+        }
+
+        op.execute();
+
+        return !isGameOver();
     }
 }
