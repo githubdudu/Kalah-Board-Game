@@ -17,14 +17,34 @@ const types = {
 	".jar": "application/java-archive"
 };
 
+// Hot reload: index.html/kalah.js are served from web/ rather than their dist copies, so
+// editing them needs no rebuild - just a save. Java changes still need `make build-web`.
+const clients = [];
+fs.watch(__dirname, (_e, name) => {
+	if (/\.(html|js|css)$/.test(name || "")) {
+		clients.forEach(c => c.write("data: reload\n\n"));
+	}
+});
+
 http.createServer((req, res) => {
-	let file = path.join(root, decodeURIComponent(req.url.split("?")[0]));
+	const url = decodeURIComponent(req.url.split("?")[0]);
+	if (url === "/__reload") {
+		res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" });
+		clients.push(res);
+		req.on("close", () => clients.splice(clients.indexOf(res), 1));
+		return;
+	}
+	let file = path.join(root, url);
 	if (file.endsWith(path.sep)) {
 		file = path.join(file, "index.html");
 	}
 	if (!file.startsWith(root)) {
 		res.writeHead(403).end("forbidden");
 		return;
+	}
+	const source = path.join(__dirname, path.relative(root, file));
+	if (/\.(html|js|css)$/.test(file) && fs.existsSync(source)) {
+		file = source;
 	}
 	fs.stat(file, (err, stat) => {
 		if (err || !stat.isFile()) {
@@ -46,6 +66,7 @@ http.createServer((req, res) => {
 		} else {
 			res.writeHead(200, {
 				"Content-Type": type,
+				"Cache-Control": "no-store",
 				"Accept-Ranges": "bytes",
 				"Content-Length": stat.size
 			});

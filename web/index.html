@@ -27,7 +27,6 @@
 		background: var(--bg);
 		color: var(--fg);
 		font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-		font-size: 14px;
 		line-height: 1.45;
 		display: flex;
 		justify-content: center;
@@ -39,12 +38,13 @@
 		padding: 1.25rem 1rem 2rem;
 		display: flex;
 		flex-direction: column;
+		justify-content: center;
 		gap: 0.75rem;
 	}
 
 	h1 {
 		margin: 0;
-		font-size: 1rem;
+		font-size: 1.5rem;
 		font-weight: 600;
 		letter-spacing: 0.04em;
 		color: var(--accent);
@@ -60,9 +60,12 @@
 	/* The board is 64 characters wide, so let it scroll rather than wrap on narrow screens. */
 	#screen {
 		margin: 0;
-		overflow-x: auto;
+		overflow-y: auto;
 		white-space: pre;
-		min-height: 55vh;
+		font-size: 1rem;
+		height: 55vh;
+		border: 1px solid var(--fg);
+		scrollbar-width: thin;
 	}
 
 	#screen .echo { color: var(--accent); }
@@ -92,13 +95,13 @@
 
 	input:focus { outline: none; }
 
-	#keys {
+	#number-btns, #op-btns {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.35rem;
 	}
 
-	#keys button {
+	#number-btns button, #op-btns button {
 		background: #1d2026;
 		color: var(--fg);
 		border: 1px solid #2a2e35;
@@ -108,9 +111,17 @@
 		cursor: pointer;
 	}
 
-	#keys button:hover { border-color: var(--accent); color: var(--accent); }
+	#number-btns button:hover, #op-btns button:hover { border-color: var(--accent); color: var(--accent); }
 
 	#status { color: var(--dim); }
+
+	#status progress {
+		display: block;
+		width: 100%;
+		height: 0.35rem;
+		margin-top: 0.5rem;
+		accent-color: var(--accent);
+	}
 </style>
 </head>
 <body>
@@ -119,29 +130,39 @@
 
 	<pre id="screen"></pre>
 
-	<p id="status">Loading the Java runtime (a few MB, first load only)&hellip;</p>
+	<!-- Indeterminate: CheerpJ does not report download progress, so a percentage would be made up. -->
+	<p id="status">Loading the Java runtime (a few MB, first load only)&hellip;<progress></progress></p>
 
-	<form id="line" hidden>
+	<form id="form" hidden>
 		<label for="entry" id="prompt">Choice:</label>
 		<input id="entry" autocomplete="off" autocapitalize="off" autocorrect="off"
 			spellcheck="false" aria-label="Game input">
 	</form>
 
-	<div id="keys" hidden></div>
+	<div id="number-btns" hidden></div>
+	<div id="op-btns"></div>
 </main>
 
 <script>
 	const screenEl = document.getElementById("screen");
 	const statusEl = document.getElementById("status");
-	const formEl = document.getElementById("line");
+	const formEl = document.getElementById("form");
 	const entryEl = document.getElementById("entry");
 	const promptEl = document.getElementById("prompt");
-	const keysEl = document.getElementById("keys");
+	const numBtnsEl = document.getElementById("number-btns");
+	const opBtnsEl = document.getElementById("op-btns");
 
 	// Set while the Java side is blocked inside jsReadLine, waiting for a line.
 	let resolveLine = null;
 
 	function write(text, className) {
+		statusEl.hidden = true;
+
+		// Find text patterns and render with accent
+		if (filterText(text)) {
+			className = "echo";
+		}
+
 		const node = document.createTextNode(text);
 		if (className) {
 			const span = document.createElement("span");
@@ -151,7 +172,18 @@
 		} else {
 			screenEl.appendChild(node);
 		}
-		window.scrollTo(0, document.body.scrollHeight);
+		// Auto Scroll
+		screenEl.scrollTo(0, screenEl.scrollHeight);
+	}
+
+	/**
+	 *	player 1:38
+	 *  player 2:10
+   *  Player 1 wins!
+	 * @text string
+	 */ 
+	function filterText(text) {
+		return text.includes("\tplayer") || text.includes("wins!");
 	}
 
 	function submitLine(value) {
@@ -160,10 +192,9 @@
 		}
 		const resolve = resolveLine;
 		resolveLine = null;
+
 		// Echo what was typed, the way a terminal would.
 		write(" " + value + "\n", "echo");
-		formEl.hidden = true;
-		keysEl.hidden = true;
 		entryEl.value = "";
 		resolve(value);
 	}
@@ -173,12 +204,20 @@
 		submitLine(entryEl.value.trim());
 	});
 
-	for (const key of ["1", "2", "3", "4", "5", "6", "N", "S", "L", "q"]) {
+	for (const key of ["1", "2", "3", "4", "5", "6"]) {
 		const button = document.createElement("button");
 		button.type = "button";
 		button.textContent = key;
 		button.addEventListener("click", () => submitLine(key));
-		keysEl.appendChild(button);
+		numBtnsEl.appendChild(button);
+	}
+
+	for (const [key, name] of [["n", "New Game"], ["l", "Load Game"], ["s", "Save Game"], ["q", "Quit"]]) {
+		const button = document.createElement("button");
+		button.type = "button";
+		button.textContent = name;
+		button.addEventListener("click", () => submitLine(key));
+		opBtnsEl.appendChild(button);
 	}
 
 	// --- Bridge for kalah.js --------------------------------------------------
@@ -190,7 +229,7 @@
 		readLine(prompt) {
 			promptEl.textContent = prompt;
 			formEl.hidden = false;
-			keysEl.hidden = false;
+			numBtnsEl.hidden = false;
 			entryEl.focus();
 			return new Promise((resolve) => {
 				resolveLine = resolve;
@@ -206,7 +245,6 @@
 				version: 8,
 				javaProperties: ["java.library.path=/app/"]
 			});
-			statusEl.hidden = true;
 			await cheerpjRunMain("web.Main", "/app/kalah-web.jar:/app/kalah-io.jar");
 			// play() returns once the player quits or the game ends.
 			write("\n[session ended - reload to play again]\n", "echo");
@@ -216,9 +254,15 @@
 			throw error;
 		} finally {
 			formEl.hidden = true;
-			keysEl.hidden = true;
+			numBtnsEl.hidden = true;
 		}
 	})();
+</script>
+<script>
+	// Live reload when serve.js sees a file change; inert once deployed.
+	if (location.hostname === "localhost") {
+		new EventSource("/__reload").onmessage = () => location.reload();
+	}
 </script>
 </body>
 </html>
